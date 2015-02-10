@@ -24,6 +24,7 @@ public interface PublisherVerificationRules {
   void required_spec109_subscribeThrowNPEOnNullSubscriber() throws Throwable;
   void untested_spec110_rejectASubscriptionRequestIfTheSameSubscriberSubscribesTwice() throws Throwable;
   void optional_spec111_maySupportMultiSubscribe() throws Throwable;
+  void required_spec112_mustIssueOnSubscribeForNonNullSubscriber() throws Throwable;
   void required_spec112_mayRejectCallsToSubscribeIfPublisherIsUnableOrUnwillingToServeThemRejectionMustTriggerOnErrorInsteadOfOnSubscribe() throws Throwable;
   void required_spec113_mustProduceTheSameElementsInTheSameSequenceToAllOfItsSubscribersWhenRequestingOneByOne() throws Throwable;
   void required_spec113_mustProduceTheSameElementsInTheSameSequenceToAllOfItsSubscribersWhenRequestingManyUpfront() throws Throwable;

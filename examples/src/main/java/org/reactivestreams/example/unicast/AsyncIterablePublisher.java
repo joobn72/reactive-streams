@@ -106,6 +106,10 @@ public class AsyncIterablePublisher<T> implements Publisher<T> {
         if (iterator == null)
           iterator = Collections.<T>emptyList().iterator(); // So we can assume that `iterator` is never null
       } catch(final Throwable t) {
+        subscriber.onSubscribe(new Subscription() { // We need to make sure we signal onSubscribe before onError, obeying rule 1.12
+          @Override public void cancel() {}
+          @Override public void request(long n) {}
+        });
         terminateDueTo(t); // Here we send onError, obeying rule 1.12
       }
 

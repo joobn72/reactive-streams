@@ -251,6 +251,19 @@ public class PublisherVerificationTest extends TCKVerificationSupport {
   }
 
   @Test
+  public void required_spec109_subscribeThrowNPEOnNullSubscriber_shouldFailIfDoesntThrowNPE() throws Throwable {
+    requireTestFailure(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        customPublisherVerification(new Publisher<Integer>() {
+          @Override public void subscribe(final Subscriber<? super Integer> s) {
+
+          }
+        }).required_spec109_subscribeThrowNPEOnNullSubscriber();
+      }
+    }, "Publisher did not throw a NullPointerException when given a null Subscribe in subscribe");
+  }
+
+  @Test
   public void untested_spec110_rejectASubscriptionRequestIfTheSameSubscriberSubscribesTwice_shouldFailBy_skippingSinceOptional() throws Throwable {
     requireTestFailure(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -265,11 +278,51 @@ public class PublisherVerificationTest extends TCKVerificationSupport {
   }
 
   @Test
+  public void required_spec112_mustIssueOnSubscribeForNonNullSubscriber_mustFailIfOnCompleteHappensFirst() throws Throwable {
+    requireTestFailure(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        customPublisherVerification(new Publisher<Integer>() {
+          @Override public void subscribe(Subscriber<? super Integer> s) {
+            s.onComplete();
+          }
+        }).required_spec112_mustIssueOnSubscribeForNonNullSubscriber();
+      }
+    }, "onSubscribe should be called prior to onComplete always");
+  }
+
+  @Test
+  public void required_spec112_mustIssueOnSubscribeForNonNullSubscriber_mustFailIfOnNextHappensFirst() throws Throwable {
+    requireTestFailure(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        customPublisherVerification(new Publisher<Integer>() {
+          @Override public void subscribe(Subscriber<? super Integer> s) {
+            s.onNext(1337);
+          }
+        }).required_spec112_mustIssueOnSubscribeForNonNullSubscriber();
+      }
+    }, "onSubscribe should be called prior to onNext always");
+  }
+
+  @Test
+  public void required_spec112_mustIssueOnSubscribeForNonNullSubscriber_mustFailIfOnErrorHappensFirst() throws Throwable {
+    requireTestFailure(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        customPublisherVerification(new Publisher<Integer>() {
+          @Override public void subscribe(Subscriber<? super Integer> s) {
+            s.onError(new TestException());
+          }
+        }).required_spec112_mustIssueOnSubscribeForNonNullSubscriber();
+      }
+    }, "onSubscribe should be called prior to onError always");
+  }
+
+  @Test
   public void optional_spec112_mayRejectCallsToSubscribeIfPublisherIsUnableOrUnwillingToServeThemRejectionMustTriggerOnErrorInsteadOfOnSubscribe_shouldFail() throws Throwable {
     requireTestFailure(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         customPublisherVerification(SKIP, new Publisher<Integer>() {
           @Override public void subscribe(Subscriber<? super Integer> s) {
+            s.onSubscribe(new NoopSubscription());
           }
         }).required_spec112_mayRejectCallsToSubscribeIfPublisherIsUnableOrUnwillingToServeThemRejectionMustTriggerOnErrorInsteadOfOnSubscribe();
       }
@@ -280,6 +333,7 @@ public class PublisherVerificationTest extends TCKVerificationSupport {
   public void optional_spec112_mayRejectCallsToSubscribeIfPublisherIsUnableOrUnwillingToServeThemRejectionMustTriggerOnErrorInsteadOfOnSubscribe_actuallyPass() throws Throwable {
     customPublisherVerification(SKIP, new Publisher<Integer>() {
       @Override public void subscribe(Subscriber<? super Integer> s) {
+        s.onSubscribe(new NoopSubscription());
         s.onError(new RuntimeException("Sorry, I'm busy now. Call me later."));
       }
     }).required_spec112_mayRejectCallsToSubscribeIfPublisherIsUnableOrUnwillingToServeThemRejectionMustTriggerOnErrorInsteadOfOnSubscribe();
